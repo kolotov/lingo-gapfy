@@ -13,7 +13,6 @@ export default defineConfig({
   }),
   modules: ['@wxt-dev/module-react'],
   srcDir: 'src',
-  publicDir: 'src/public',
   alias: {
     '@': './src',
   },
