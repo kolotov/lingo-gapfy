@@ -1,0 +1,41 @@
+{
+  "name": "lingo-gapfy",
+  "displayName": "LingoGapfy",
+  "description": "manifest.json description",
+  "author": "**",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "chrome-extension",
+    "vanilla",
+    "vite",
+    "create-chrome-ext"
+  ],
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "fmt": "prettier --write '**/*.{ts,json,css,scss,md}'"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@wxt-dev/module-react": "^1.1.5",
+    "typescript": "^5.9.3",
+    "vite-plugin-checker": "^0.11.0",
+    "wxt": "0.20.11"
+  }
+}
