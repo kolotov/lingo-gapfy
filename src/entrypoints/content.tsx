@@ -10,6 +10,7 @@ export default defineContentScript({
       anchor: ".ytp-right-controls",
       append: "first",
       onMount: (container) => {
+        container.style.display = "contents";
         const root = ReactDOM.createRoot(container);
         root.render(<StartButton/>);
         return root;
