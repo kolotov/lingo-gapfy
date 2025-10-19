@@ -4,6 +4,9 @@ import checker from "vite-plugin-checker";
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   vite: ()=> ({
+    css: {
+      devSourcemap: true,
+    },
     plugins: [
       checker({
         typescript: true,
