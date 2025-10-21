@@ -6,6 +6,9 @@ export default defineConfig({
   vite: ()=> ({
     css: {
       devSourcemap: true,
+      modules: {
+        generateScopedName: 'lingo-gapfy__[local]__[hash:base64:5]',
+      }
     },
     plugins: [
       checker({
