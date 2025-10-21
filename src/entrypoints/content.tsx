@@ -7,7 +7,7 @@ export default defineContentScript({
 
     const buttonUI = createIntegratedUi(ctx, {
       position: "inline",
-      anchor: ".ytp-right-controls",
+      anchor: "#player-container .ytp-right-controls",
       append: "first",
       onMount: (container) => {
         container.style.display = "contents";
@@ -19,6 +19,6 @@ export default defineContentScript({
         root?.unmount();
       },
     });
-    buttonUI.autoMount();
+    buttonUi.autoMount();
   },
 });
