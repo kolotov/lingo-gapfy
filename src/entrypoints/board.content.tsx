@@ -8,8 +8,9 @@ export default defineContentScript({
 
     const boardUi = await createShadowRootUi(ctx, {
       name: "lingo-gapfy-board-host",
-      position: "overlay",
-      anchor: "#ytd-player .html5-video-container",
+      position: "inline",
+      append: "before",
+      anchor: "#player-container #ytd-player",
       onMount: (container) => {
         const host = document.createElement('div');
         container.append(host);

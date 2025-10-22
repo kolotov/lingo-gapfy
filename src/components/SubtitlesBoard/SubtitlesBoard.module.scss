@@ -2,12 +2,13 @@
   position: absolute;
   overflow: hidden;
   display: flex;
-  top: 0;
+  top: auto;
   left: 0;
   width: 100%;
-  max-width: 100%; //?
+  max-width: none;
   height: 40px;
-  /* debug border 1px*/
+  box-sizing: border-box;
+  /* debug border */
   border: 1px solid red;
   border-radius: 8px 8px 0 0;
   z-index: 1;
