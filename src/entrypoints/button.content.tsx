@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client";
 import {StartButton} from "@/components/StartButton/StartButton.tsx";
-import {SubtitlesBoard} from "@/components/SubtitlesBoard/SubtitlesBoard.tsx";
 
 export default defineContentScript({
   matches: ['*://*.youtube.com/*'],
@@ -15,26 +14,9 @@ export default defineContentScript({
       }
     );
 
-    const boardUi = await createShadowRootUi(ctx, {
-      name: "lingo-gapfy-board-host",
-      position: "overlay",
-      anchor: "#player-container",
-      onMount: (container) => {
-        const host = document.createElement('div');
-        container.append(host);
-        const root = ReactDOM.createRoot(host);
-        root.render(<SubtitlesBoard/>)
-        return root;
-      },
-      onRemove: (root) => {
-        root?.unmount();
-      }
-    });
-    boardUi.autoMount();
-
     const buttonUi = createIntegratedUi(ctx, {
       position: "inline",
-      anchor: "#player-container .ytp-right-controls",
+      anchor: "#ytd-player .ytp-right-controls",
       append: "first",
       onMount: (container) => {
         container.style.display = "contents";
