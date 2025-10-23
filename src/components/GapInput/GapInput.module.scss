@@ -1,11 +1,33 @@
 .gapInput {
-  border: 1px solid rgb(102, 102, 102);
+  border: none;
+  outline: 1px solid rgba(176, 186, 210, 0.4);
   border-radius: 3px;
-  padding: 2px 4px;
-  margin: 0 2px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  margin: 0 3px;
+  background: rgba(255, 255, 255, 0.05);
   color: white;
   font-size: inherit;
   font-family: inherit;
   text-align: center;
+  transition: outline-color 0.15s ease;
+
+  &:focus {
+    outline: 2px solid rgba(100, 150, 255, 0.8);
+  }
+}
+
+.correct {
+  outline: 2px solid rgba(32, 184, 72, 0.7);
+
+  &:focus {
+    outline-color: rgba(32, 184, 72, 0.9);
+  }
+}
+
+.error {
+  outline: 2px solid rgba(239, 68, 68, 0.7);
+
+  &:focus {
+    outline-color: rgba(239, 68, 68, 0.9);
+  }
 }
