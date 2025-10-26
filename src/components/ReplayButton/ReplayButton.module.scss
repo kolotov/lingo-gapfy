@@ -1,0 +1,21 @@
+.ReplayButton {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  text-align: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 5px;
+}
+
+.ReplayButton svg {
+  width: 28px;
+  stroke-width: 1.8px;
+  opacity: 0.9;
+}

@@ -22,4 +22,11 @@ export default defineConfig({
   alias: {
     '@': './src',
   },
+  manifest: {
+    action: {
+      default_title: "Lingo Gapfy",
+    },
+    permissions: ['tabs', 'activeTab'],
+    host_permissions: ['*://*.youtube.com/*'],
+  },
 });

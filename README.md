@@ -1,28 +1,53 @@
 # Lingo Gapfy
 
-**Lingo Gapfy** is a Chrome extension that helps improve listening skills on YouTube.
-It turns videos with subtitles into interactive listening exercises: the user listens to a short segment, fills in the missing words, receives feedback, and tracks progress.
+**Lingo Gapfy** is a Chrome extension that turns any YouTube video with subtitles into a gap–filling exercise.  
+It detects the currently spoken caption line, pauses the video, hides the native subtitles and renders its own panel where every second word becomes an input. Users type the missing words and can replay the segment until they succeed.
 
 ## How it works
 
-1. The user clicks the **Start** button on the YouTube control panel.
-2. The extension plays a short video segment (5–10 seconds).
-3. The video stops automatically.
-4. Subtitles for this segment are displayed with missing words.
-5. The user types the missing words into input fields.
-6. After clicking **Check**:
-  - if all words are correct — the next segment is played;
-  - if there are mistakes — the user can listen again and try once more.
-7. Mistakes are recorded in a personal dictionary of difficult words for further review.
+1. Open a YouTube video with subtitles and click the extension’s toolbar icon — the custom subtitle board appears under the player.
+2. When YouTube streams a new caption line, the extension automatically pauses playback and shows the line with gap inputs.
+3. Type the missing words. Correct answers lock in and automatically focus the next gap.
+4. Use the built‑in **Replay** button to rehear the last caption line as many times as needed.
+5. Once all gaps are filled, playback resumes and the next line becomes the new exercise.
 
-## Technologies
+This workflow doesn’t require any extra UI on YouTube — the extension controls everything from the injected board.
 
-- **React** — UI components (subtitles panel, input fields, start button)
-- **WXT** — framework for Chrome Extension development
-- **TypeScript** — strict type safety
-- **Nano Stores** — reactive state management
-- **SCSS Modules** — component-level styling
-- **YouTube DOM API** — integration with the YouTube player interface
+## Tech stack
 
-## Project structure
+- **React 19 + SCSS modules** – subtitle board UI and styling
+- **Nanostores** – light state management for segments, gaps and exercise state
+- **TypeScript** – strict typing across content/background scripts and React
+- **WXT (Vite)** – modern tooling for Chrome/Firefox extension builds
+- **YouTube DOM hooks** – observe `.ytp-caption-segment` nodes, control `HTMLVideoElement`
 
+## Key components
+
+```
+src/
+  entrypoints/
+    board.content.tsx   # mounts React board on YouTube pages
+    background.ts       # toggles exercise via browser action
+  components/
+    SubtitlesBoard/     # renders tokens + replay button
+    GapInput/           # gap field with validation + navigation
+    ReplayButton/       # YouTube‑style button to replay segment
+  store/
+    subtitles.ts        # capture captions, manage segments, replay
+    gapExercise.ts      # gap statuses, auto‑pause/resume logic
+    exercise.ts         # lifecycle helpers and DOM plumbing
+  utils/
+    youtubeApi.ts       # DOM helpers for video + subtitles button
+    wordProcessor.ts    # tokenizer that alternates words and gaps
+```
+
+## Development
+
+```bash
+pnpm install
+pnpm dev        # starts WXT in watch mode
+pnpm build      # produces extension bundle
+pnpm typecheck  # run TypeScript without emit
+```
+
+Load `.output/chrome-mv3` as an unpacked extension in Chrome (or the Firefox bundle when building with `-b firefox`).
