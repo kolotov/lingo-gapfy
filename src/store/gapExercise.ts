@@ -1,5 +1,12 @@
 import {atom, computed} from 'nanostores';
-import {$exerciseSegment, $previousSegment, $tokens, setExerciseSegment, startReplayMode, clearRememberedStart} from './subtitles';
+import {
+  $exerciseSegment,
+  $previousSegment,
+  $tokens,
+  setExerciseSegment,
+  skipNextSubtitleCompletion,
+  startReplayMode
+} from './subtitles';
 import {getVideo} from "@/utils/youtubeApi.ts";
 import {processText} from "@/utils/wordProcessor.ts";
 import {debugLog} from "@/utils/debug.ts";
@@ -66,10 +73,9 @@ export const $allGapsCompleted = computed(
 let segmentChangeUnsubscribe: (() => void) | null = null;
 let allGapsCompletedUnsubscribe: (() => void) | null = null;
 let lastPausedSegmentId: string | null = null;
-let shouldSkipNextSegment = false;
 
 export function requestSkipNextSegment() {
-  shouldSkipNextSegment = true;
+  skipNextSubtitleCompletion();
 }
 
 export function clearActiveExerciseSegment() {
@@ -82,15 +88,6 @@ export function startExerciseListeners() {
   // Pause when a completed segment becomes available (YouTube moved on to the next one)
   segmentChangeUnsubscribe = $previousSegment.listen((segment) => {
     if (!segment) return;
-
-    if (shouldSkipNextSegment) {
-      debugLog('exercise', 'Skipping segment after seek/start', segment.text);
-      shouldSkipNextSegment = false;
-      lastPausedSegmentId = segment.id;
-      clearRememberedStart(segment.text);
-      setExerciseSegment(null);
-      return;
-    }
 
     if (segment.id === lastPausedSegmentId) {
       debugLog('exercise', 'Segment already handled, skipping', segment.id);
@@ -143,6 +140,5 @@ export function stopExerciseListeners() {
   segmentChangeUnsubscribe = null;
   allGapsCompletedUnsubscribe = null;
   lastPausedSegmentId = null;
-  shouldSkipNextSegment = false;
   debugLog('exercise', 'Exercise listeners stopped');
 }

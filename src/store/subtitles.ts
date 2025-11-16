@@ -22,6 +22,8 @@ export const $exerciseSegment = atom<Segment | null>(null);
 
 export const $tokens = atom<WordToken[]>([]);
 
+let skipCompletedSegmentCount = 0;
+
 export function setExerciseSegment(segment: Segment | null, tokens?: WordToken[]) {
   $exerciseSegment.set(segment);
   if (segment) {
@@ -76,6 +78,10 @@ export function clearRememberedStart(text: string) {
   textStartTimes.delete(key);
 }
 
+export function skipNextSubtitleCompletion() {
+  skipCompletedSegmentCount += 1;
+}
+
 function buildSegmentId(startTime: number) {
   return `segment-${Math.round(startTime * 1000)}`;
 }
@@ -87,14 +93,20 @@ export function startSubtitleCapture() {
 function startDomObserverCapture() {
   const container = getCaptionContainer();
   if (!container) {
+    debugLog('subtitles', 'Caption container not found');
     console.warn('Caption container not found');
     return null;
   }
 
+  debugLog('subtitles', 'Caption container ready', {
+    className: container.className,
+    id: container.id
+  });
+
   debugLog('subtitles', 'Starting subtitle capture');
 
   currentObserver = new MutationObserver(() => {
-    const segments = container.querySelectorAll('.ytp-caption-segment');
+    const segments = container.querySelectorAll('.ytp-caption-window-bottom .ytp-caption-segment');
     if (segments.length === 0) {
       debugLog('subtitles', 'No caption segments found in DOM');
       return;
@@ -121,21 +133,30 @@ function startDomObserverCapture() {
 
       // If there was an active segment, move it to previous
       if (prevActive) {
-        const safeEndTime = Math.max(currentTime, prevActive.startTime);
-        const rememberedStart = rememberStartTime(prevActive.text, prevActive.startTime);
-        const completedSegment: Segment = {
-          ...prevActive,
-          id: buildSegmentId(rememberedStart),
-          startTime: rememberedStart,
-          endTime: safeEndTime
-        };
-        debugLog('subtitles', 'Segment completed', {
-          segmentId: completedSegment.id,
-          text: completedSegment.text,
-          start: formatTime(completedSegment.startTime),
-          end: formatTime(completedSegment.endTime)
-        });
-        $previousSegment.set(completedSegment);
+        if (skipCompletedSegmentCount > 0) {
+          skipCompletedSegmentCount -= 1;
+          debugLog('subtitles', 'Segment completion skipped', {
+            text: prevActive.text,
+            start: formatTime(prevActive.startTime)
+          });
+          clearRememberedStart(prevActive.text);
+        } else {
+          const safeEndTime = Math.max(currentTime, prevActive.startTime);
+          const rememberedStart = rememberStartTime(prevActive.text, prevActive.startTime);
+          const completedSegment: Segment = {
+            ...prevActive,
+            id: buildSegmentId(rememberedStart),
+            startTime: rememberedStart,
+            endTime: safeEndTime
+          };
+          debugLog('subtitles', 'Segment completed', {
+            segmentId: completedSegment.id,
+            text: completedSegment.text,
+            start: formatTime(completedSegment.startTime),
+            end: formatTime(completedSegment.endTime)
+          });
+          $previousSegment.set(completedSegment);
+        }
       }
 
       // Create new active segment

@@ -13,7 +13,7 @@ export function isVideoReady() {
 }
 
 export function getCaptionContainer() {
-  return document.querySelector<HTMLDivElement>('.ytp-caption-window-bottom');
+  return document.querySelector<HTMLDivElement>('#ytp-caption-window-container');
 }
 
 export function isSubtitlesEnabled() {
