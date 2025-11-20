@@ -1,6 +1,8 @@
 # Lingo Gapfy
 
-**Lingo Gapfy** is a Chrome extension that turns any YouTube video with subtitles into a gap–filling exercise.  
+![Lingo Gapfy board showing gap-fill exercise under a YouTube video](./media/1280x720.png)
+
+**Lingo Gapfy** is a Chrome extension that turns any YouTube video with subtitles into a gap–filling exercise.
 It detects the currently spoken caption line, pauses the video, hides the native subtitles and renders its own panel where every second word becomes an input. Users type the missing words and can replay the segment until they succeed.
 
 ## How it works
@@ -12,6 +14,10 @@ It detects the currently spoken caption line, pauses the video, hides the native
 5. Once all gaps are filled, playback resumes and the next line becomes the new exercise.
 
 This workflow doesn’t require any extra UI on YouTube — the extension controls everything from the injected board.
+
+## Installation
+
+**Chrome Web Store:** [Lingo Gapfy](https://chromewebstore.google.com/detail/hhecplbalnkjkfpjleacfjaakhnmnjmb?utm_source=github)
 
 ## Tech stack
 
