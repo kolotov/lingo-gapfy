@@ -1,15 +1,9 @@
 import {atom, computed} from 'nanostores';
-import {
-  $exerciseSegment,
-  $previousSegment,
-  $tokens,
-  setExerciseSegment,
-  skipNextSubtitleCompletion,
-  startReplayMode
-} from './subtitles';
+import {$previousSegment, $tokens, setExerciseSegment, startReplayMode, $exerciseSegment} from './subtitles';
 import {getVideo} from "@/utils/youtubeApi.ts";
 import {processText} from "@/utils/wordProcessor.ts";
 import {debugLog} from "@/utils/debug.ts";
+import {isReplaySessionActive} from "@/store/replayState.ts";
 
 type GapStatus = 'default' | 'correct' | 'error';
 
@@ -74,10 +68,6 @@ let segmentChangeUnsubscribe: (() => void) | null = null;
 let allGapsCompletedUnsubscribe: (() => void) | null = null;
 let lastPausedSegmentId: string | null = null;
 
-export function requestSkipNextSegment() {
-  skipNextSubtitleCompletion();
-}
-
 export function clearActiveExerciseSegment() {
   if ($exerciseSegment.get()) {
     setExerciseSegment(null);
@@ -88,6 +78,12 @@ export function startExerciseListeners() {
   // Pause when a completed segment becomes available (YouTube moved on to the next one)
   segmentChangeUnsubscribe = $previousSegment.listen((segment) => {
     if (!segment) return;
+
+    const exerciseSegment = $exerciseSegment.get();
+    if (isReplaySessionActive() && exerciseSegment?.id !== segment.id) {
+      debugLog('exercise', 'Segment received during replay, ignoring', segment.text);
+      return;
+    }
 
     if (segment.id === lastPausedSegmentId) {
       debugLog('exercise', 'Segment already handled, skipping', segment.id);
@@ -106,7 +102,7 @@ export function startExerciseListeners() {
     const segmentStatuses = $gapStatuses.get()[segment.id] || {};
     const hasPendingGaps = gapTokens.some(token => segmentStatuses[token.index] !== 'correct');
 
-    if (!hasPendingGaps) {
+    if (!hasPendingGaps && !isReplaySessionActive()) {
       debugLog('exercise', 'All gaps already completed, skipping pause', segment.text);
       return;
     }
@@ -114,14 +110,21 @@ export function startExerciseListeners() {
     setExerciseSegment(segment, tokens);
 
     // Completed segment ready for exercise - pause playback
-    debugLog('exercise', 'Completed segment ready, pausing video', {
-      segmentId: segment.id,
-      text: segment.text
-    });
     const video = getVideo();
-    video?.pause();
+    if (!isReplaySessionActive()) {
+      debugLog('exercise', 'Completed segment ready, pausing video', {
+        segmentId: segment.id,
+        text: segment.text
+      });
+      video?.pause();
+      lastPausedSegmentId = segment.id;
+    } else {
+      debugLog('exercise', 'Replay reuse of segment, keeping playback', {
+        segmentId: segment.id,
+        text: segment.text
+      });
+    }
 
-    lastPausedSegmentId = segment.id;
   });
 
   // Resume when all gaps completed
@@ -129,7 +132,14 @@ export function startExerciseListeners() {
     if (allCompleted) {
       debugLog('exercise', 'All gaps completed, resuming playback');
       const video = getVideo();
-      video?.play();
+      if (video) {
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {
+            debugLog('exercise', 'Video play failed, user interaction required');
+          });
+        }
+      }
     }
   });
 }

@@ -2,7 +2,7 @@ import {atom} from 'nanostores';
 import {processText, WordToken} from "@/utils/wordProcessor.ts";
 import {getCaptionContainer, getVideo} from "@/utils/youtubeApi.ts";
 import {debugLog, formatTime} from "@/utils/debug.ts";
-import {endReplaySession, startReplaySession} from "@/store/replayState.ts";
+import {endReplaySession, isReplaySessionActive, startReplaySession} from "@/store/replayState.ts";
 
 export type Segment = {
   id: string;
@@ -21,8 +21,6 @@ export const $previousSegment = atom<Segment | null>(null);
 export const $exerciseSegment = atom<Segment | null>(null);
 
 export const $tokens = atom<WordToken[]>([]);
-
-let skipCompletedSegmentCount = 0;
 
 export function setExerciseSegment(segment: Segment | null, tokens?: WordToken[]) {
   $exerciseSegment.set(segment);
@@ -72,16 +70,6 @@ function getRememberedStartTime(text: string, fallback: number) {
   return textStartTimes.get(key) ?? fallback;
 }
 
-export function clearRememberedStart(text: string) {
-  const key = getTextKey(text);
-  if (!key) return;
-  textStartTimes.delete(key);
-}
-
-export function skipNextSubtitleCompletion() {
-  skipCompletedSegmentCount += 1;
-}
-
 function buildSegmentId(startTime: number) {
   return `segment-${Math.round(startTime * 1000)}`;
 }
@@ -106,6 +94,9 @@ function startDomObserverCapture() {
   debugLog('subtitles', 'Starting subtitle capture');
 
   currentObserver = new MutationObserver(() => {
+    if (isReplaySessionActive()) {
+      return;
+    }
     const segments = container.querySelectorAll('.ytp-caption-window-bottom .ytp-caption-segment');
     if (segments.length === 0) {
       debugLog('subtitles', 'No caption segments found in DOM');
@@ -133,30 +124,21 @@ function startDomObserverCapture() {
 
       // If there was an active segment, move it to previous
       if (prevActive) {
-        if (skipCompletedSegmentCount > 0) {
-          skipCompletedSegmentCount -= 1;
-          debugLog('subtitles', 'Segment completion skipped', {
-            text: prevActive.text,
-            start: formatTime(prevActive.startTime)
-          });
-          clearRememberedStart(prevActive.text);
-        } else {
-          const safeEndTime = Math.max(currentTime, prevActive.startTime);
-          const rememberedStart = rememberStartTime(prevActive.text, prevActive.startTime);
-          const completedSegment: Segment = {
-            ...prevActive,
-            id: buildSegmentId(rememberedStart),
-            startTime: rememberedStart,
-            endTime: safeEndTime
-          };
-          debugLog('subtitles', 'Segment completed', {
-            segmentId: completedSegment.id,
-            text: completedSegment.text,
-            start: formatTime(completedSegment.startTime),
-            end: formatTime(completedSegment.endTime)
-          });
-          $previousSegment.set(completedSegment);
-        }
+        const safeEndTime = Math.max(currentTime, prevActive.startTime);
+        const rememberedStart = rememberStartTime(prevActive.text, prevActive.startTime);
+        const completedSegment: Segment = {
+          ...prevActive,
+          id: buildSegmentId(rememberedStart),
+          startTime: rememberedStart,
+          endTime: safeEndTime
+        };
+        debugLog('subtitles', 'Segment completed', {
+          segmentId: completedSegment.id,
+          text: completedSegment.text,
+          start: formatTime(completedSegment.startTime),
+          end: formatTime(completedSegment.endTime)
+        });
+        $previousSegment.set(completedSegment);
       }
 
       // Create new active segment
@@ -235,15 +217,15 @@ export function startReplayMode(segmentId: string) {
     return;
   }
 
+  const REPLAY_LEAD_IN = 0.5;
   const replayEndTime = segment.endTime ?? video.currentTime;
   const segmentStart = getRememberedStartTime(segment.text, segment.startTime);
+  const replayStartTime = Math.max(segmentStart - REPLAY_LEAD_IN, 0);
 
-  if (replayEndTime <= segmentStart) {
+  if (replayEndTime <= replayStartTime) {
     console.warn('Cannot replay: segment missing end time information');
     return;
   }
-
-  const replayStartTime = Math.max(segmentStart, 0);
 
   debugLog('replay', 'Replaying segment', {
     segmentId,
@@ -299,4 +281,17 @@ export function clearSubtitle() {
     }
     replayTimeUpdateHandler = null;
   }
+}
+
+export function clearActiveSubtitleSegment() {
+  const active = $activeSegment.get();
+  if (active) {
+    debugLog('subtitles', 'Active segment cleared', {
+      segmentId: active.id,
+      text: active.text
+    });
+  }
+  $activeSegment.set(null);
+  lastSegmentElement = null;
+  lastSegmentText = '';
 }

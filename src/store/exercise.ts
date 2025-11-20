@@ -1,23 +1,21 @@
 import {atom} from 'nanostores';
 import {
   enableSubtitles,
+  getVideo,
   hideOverlayTop,
   hideYouTubeSubtitles,
   restoreSubtitlesButton,
   showOverlayTop,
   showYouTubeSubtitles
 } from '@/utils/youtubeApi';
-import {setExerciseSegment, startSubtitleCapture} from '@/store/subtitles';
+import {clearActiveSubtitleSegment, startSubtitleCapture, $exerciseSegment, clearSubtitle} from '@/store/subtitles';
 import {
   clearActiveExerciseSegment,
   clearExercise,
-  requestSkipNextSegment,
   startExerciseListeners,
   stopExerciseListeners
 } from '@/store/gapExercise';
 import {debugLog} from "@/utils/debug.ts";
-import {getVideo} from "@/utils/youtubeApi";
-import {isReplaySessionActive} from "@/store/replayState.ts";
 
 export const $exerciseActive = atom(false);
 
@@ -32,10 +30,9 @@ export function startExercise() {
   hideOverlayTop();
   enableSubtitles();
   hideYouTubeSubtitles();
-  requestSkipNextSegment();
   tryStartCapture();
   watchSubtitlesButton();
-  setExerciseSegment(null);
+  clearActiveExerciseSegment()
   startExerciseListeners();
   cleanupSeekListener = watchVideoSeeking();
   $exerciseActive.set(true);
@@ -71,6 +68,8 @@ function watchSubtitlesButton() {
 }
 
 export function stopExercise() {
+  $exerciseActive.set(false);
+  clearActiveExerciseSegment()
   showOverlayTop();
   cleanupCapture?.();
   cleanupCapture = null;
@@ -79,7 +78,6 @@ export function stopExercise() {
   cleanupSeekListener?.();
   cleanupSeekListener = null;
   stopExerciseListeners();
-  $exerciseActive.set(false);
   clearExercise();
   showYouTubeSubtitles();
   restoreSubtitlesButton();
@@ -90,28 +88,23 @@ function watchVideoSeeking() {
   const video = getVideo();
   if (!video) return null;
 
-  let ignoreNextPlay = false;
-  const markSkip = () => {
-    ignoreNextPlay = true;
-    requestSkipNextSegment();
-  };
-
-  const handlePlay = () => {
-    if (isReplaySessionActive()) {
-      return;
+  const handleTimeJump = () => {
+    const segment = $exerciseSegment.get();
+    if (!segment) return;
+    const tolerance = 1;
+    const segStart = segment.startTime ?? 0;
+    const segEnd = segment.endTime ?? segStart;
+    const current = video.currentTime;
+    if (current < segStart - tolerance || current > segEnd + tolerance) {
+      clearActiveExerciseSegment();
+      clearSubtitle();
+      clearActiveSubtitleSegment();
+      clearExercise();
     }
-    if (ignoreNextPlay) {
-      ignoreNextPlay = false;
-      return;
-    }
-    clearActiveExerciseSegment();
   };
-
-  video.addEventListener('seeking', markSkip);
-  video.addEventListener('play', handlePlay);
+  video.addEventListener('seeking', handleTimeJump);
 
   return () => {
-    video.removeEventListener('seeking', markSkip);
-    video.removeEventListener('play', handlePlay);
+    video.removeEventListener('seeking', handleTimeJump);
   };
 }
