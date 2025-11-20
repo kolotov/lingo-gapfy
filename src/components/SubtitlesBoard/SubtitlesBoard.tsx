@@ -7,6 +7,7 @@ import {useGapNavigation} from '@/hooks/useGapNavigation';
 import {GapInput} from '@/components/GapInput/GapInput';
 import styles from './SubtitlesBoard.module.scss';
 import {ReplayButton} from "@/components/ReplayButton/ReplayButton.tsx";
+import mascot from "@/assets/lingo-gapfy.png"
 
 export const SubtitlesBoard = () => {
   const tokens = useStore($tokens);
@@ -61,7 +62,7 @@ export const SubtitlesBoard = () => {
           )}
           <ReplayButton segmentId={displaySegment.id}/>
         </>
-      ) : null}
+      ) : <img src={mascot} height='38px' width='38px' alt=''/>}
     </div>
   );
 };
