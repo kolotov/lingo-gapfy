@@ -23,6 +23,7 @@ export default defineConfig({
     '@': './src',
   },
   manifest: {
+    name: "Lingo Gapfy",
     action: {
       default_title: "Lingo Gapfy",
     },

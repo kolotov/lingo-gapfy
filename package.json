@@ -1,6 +1,6 @@
 {
   "name": "lingo-gapfy",
-  "displayName": "LingoGapfy",
+  "displayName": "Lingo Gapfy",
   "description": "A Chrome extension that turns YouTube videos with subtitles into interactive listening exercises.",
   "author": "Georgii Kolotov",
   "homepage": "https://github.com/kolotov/lingo-gapfy",
@@ -12,7 +12,7 @@
     "url": "https://github.com/kolotov/lingo-gapfy/issues"
   },
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "license": "MIT",
   "keywords": [
