@@ -7,7 +7,7 @@ import {
   showOverlayTop,
   showYouTubeSubtitles
 } from '@/utils/youtubeApi';
-import {startSubtitleCapture} from '@/store/subtitles';
+import {setExerciseSegment, startSubtitleCapture} from '@/store/subtitles';
 import {
   clearActiveExerciseSegment,
   clearExercise,
@@ -35,6 +35,7 @@ export function startExercise() {
   requestSkipNextSegment();
   tryStartCapture();
   watchSubtitlesButton();
+  setExerciseSegment(null);
   startExerciseListeners();
   cleanupSeekListener = watchVideoSeeking();
   $exerciseActive.set(true);
