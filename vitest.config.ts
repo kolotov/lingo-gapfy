@@ -8,7 +8,8 @@ export default defineConfig({
     }
   },
   test: {
-    environment: 'jsdom',
-    globals: true
+    environment: 'happy-dom',
+    globals: true,
+    setupFiles: ['vitest.setup.ts']
   }
 });
