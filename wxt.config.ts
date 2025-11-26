@@ -27,7 +27,6 @@ export default defineConfig({
     action: {
       default_title: "Lingo Gapfy",
     },
-    permissions: ['activeTab'],
-    host_permissions: ['*://*.youtube.com/*'],
+    host_permissions: ['https://*.youtube.com/*'],
   },
 });
