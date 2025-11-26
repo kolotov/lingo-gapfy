@@ -39,23 +39,24 @@
   },
   "dependencies": {
     "@nanostores/react": "^1.0.0",
-    "nanostores": "^1.0.1",
+    "nanostores": "^1.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "@vitest/coverage-v8": "4.0.13",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "4.0.14",
     "@wxt-dev/module-react": "^1.1.5",
     "happy-dom": "^20.0.10",
-    "sass": "^1.93.2",
+    "sass": "^1.94.2",
     "typescript": "^5.9.3",
     "vite-plugin-checker": "^0.11.0",
-    "vitest": "^4.0.13",
+    "vitest": "^4.0.14",
     "vitest-mock-extended": "^3.1.0",
     "wxt": "0.20.11"
-  }
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }
