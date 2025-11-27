@@ -2,6 +2,7 @@ import {defineConfig} from 'wxt';
 import checker from "vite-plugin-checker";
 
 // See https://wxt.dev/api/config.html
+// noinspection JSUnusedGlobalSymbols
 export default defineConfig({
   vite: ()=> ({
     css: {
