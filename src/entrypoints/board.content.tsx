@@ -25,7 +25,7 @@ function startVideoStateTracking() {
 
 // noinspection JSUnusedGlobalSymbols
 export default defineContentScript({
-  matches: ['*://*.youtube.com/*'],
+  matches: ['https://*.youtube.com/*'],
   cssInjectionMode: "ui",
   async main(ctx) {
     let stopTracking: (() => void);
