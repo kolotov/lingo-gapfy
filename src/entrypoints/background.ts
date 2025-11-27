@@ -1,4 +1,5 @@
 import {ICON_PATHS} from '@/utils/icon';
+const YOUTUBE_URL_PATTERN = /:\/\/([^/]+\.)?youtube\.com\//i;
 
 // noinspection JSUnusedGlobalSymbols
 export default defineBackground(() => {
@@ -36,11 +37,10 @@ export default defineBackground(() => {
   });
 
   browser.action.onClicked.addListener(async (tab) => {
-    if (!tab.id) return;
+    if (!tab.id || !tab.url || !YOUTUBE_URL_PATTERN.test(tab.url)) return;
+
     try {
-      await browser.tabs.sendMessage(tab.id, {
-        action: 'toggleExercise'
-      });
+      await browser.tabs.sendMessage(tab.id, {action: 'toggleExercise'});
     } catch (error) {
       console.error('Failed to toggle exercise:', error);
     }

@@ -24,10 +24,10 @@ export default defineConfig({
     '@': './src',
   },
   manifest: {
+    manifest_version: 3,
     name: "Lingo Gapfy",
     action: {
       default_title: "Lingo Gapfy",
     },
-    host_permissions: ['https://*.youtube.com/*'],
   },
 });
