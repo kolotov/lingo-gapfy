@@ -3,15 +3,15 @@ import {browser} from 'wxt/browser';
 import {SubtitlesBoard} from "@/components/SubtitlesBoard/SubtitlesBoard.tsx";
 import {clearSubtitle} from "@/store/subtitles.ts";
 import {$exerciseActive, startExercise, stopExercise} from "@/store/exercise.ts";
-import {isVideoReady} from "@/utils/youtubeApi.ts";
+import {isExerciseAvailable} from "@/utils/youtubeApi.ts";
 
 function startVideoStateTracking() {
   let lastState = false;
   const notifyVideoState = () => {
-    const currentState = isVideoReady();
-    if (currentState == lastState) return
-    lastState = currentState;
-    browser.runtime.sendMessage({action: 'setIconState', isPlayerAvailable: currentState});
+    const available = isExerciseAvailable();
+    if (available === lastState) return;
+    lastState = available;
+    browser.runtime.sendMessage({action: 'setIconState', isPlayerAvailable: available});
   };
 
   const checkInterval = setInterval(notifyVideoState, 500);
@@ -56,8 +56,10 @@ export default defineContentScript({
         const isActive = $exerciseActive.get();
         if (isActive) {
           stopExercise();
-        } else {
+        } else if (isExerciseAvailable()) {
           startExercise();
+        } else {
+          console.warn('Exercise blocked: unavailable (ad or player not ready).');
         }
         sendResponse({success: true});
         return true;

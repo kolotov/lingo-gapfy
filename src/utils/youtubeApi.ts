@@ -64,3 +64,12 @@ export function showYouTubeSubtitles() {
   const container = document.querySelector<HTMLElement>('#ytp-caption-window-container');
   if (container) container.style.display = 'block';
 }
+
+export function isAdOverlayVisible() {
+  const overlay = document.querySelector<HTMLElement>('[id^="player-overlay-layout"]');
+  return !!overlay && overlay.offsetParent !== null;
+}
+
+export function isExerciseAvailable() {
+  return isVideoReady() && !isAdOverlayVisible();
+}

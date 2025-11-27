@@ -38,6 +38,8 @@ export default defineBackground(() => {
 
   browser.action.onClicked.addListener(async (tab) => {
     if (!tab.id || !tab.url || !YOUTUBE_URL_PATTERN.test(tab.url)) return;
+    const isAvailable = tabStates.get(tab.id);
+    if (!isAvailable) return;
 
     try {
       await browser.tabs.sendMessage(tab.id, {action: 'toggleExercise'});
