@@ -19,6 +19,8 @@ function startVideoStateTracking() {
 
   return () => {
     lastState = false;
+    // Ensure toolbar icon goes inactive when UI is torn down (e.g. navigating away).
+    browser.runtime.sendMessage({action: 'setIconState', isPlayerAvailable: false});
     clearInterval(checkInterval);
   };
 }
@@ -44,6 +46,8 @@ export default defineContentScript({
       },
       onRemove: (root) => {
         stopTracking();
+        // Explicitly reset the icon when the board unmounts (e.g. navigating to non-player pages).
+        browser.runtime.sendMessage({action: 'setIconState', isPlayerAvailable: false});
         stopExercise();
         clearSubtitle();
         root?.unmount();
